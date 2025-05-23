@@ -101,5 +101,52 @@ function edit($id) {
 # ASC :: used for the sort the data in ascending order
 # get :: used for the get the data from database
 
+# For update function 
+function update(Request $request, $id) {
+  $user = User::find($id);
+  $user->save();
+  $user->syncRoles($request->role);
+}
+
+Note: It is properly in the userController and add the role value in the role related database "Model_has_role". In this database, the role_id us coming from the role database form.
+
+# Add middleware from the Spatie Website 
+Go to the offical website : https://spatie.be/docs/laravel-permission/v6/introduction 
+search the middleware in the search box of this website and select the bydefault middleware : https://spatie.be/docs/laravel-permission/v6/basic-usage/middleware
+
+Copy the Package Middleware code because it is related to bootstrap : 
+ $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+This code paste/add in the middleware function of app.php file of project.
+
+# Add Permission code in the Controller  as PermissionControllers, AtricleControllers, RolesControllers, UserControllers
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+add 'implements HasMiddleware' in the class function 
+
+ public static function middleware(): array {
+        return [
+            new Middleware('permission:permission database value', only: ['index']),
+            new Middleware('permission:permission database value', only: ['edit']),
+            new Middleware('permission:permission database value', only: ['create']),
+            new Middleware('permission:permission database value', only: ['destroy']),
+        ];
+    }
+
+For Example: This is the role related permission in Role controllers 
+ public static function middleware(): array {
+        return [
+            new Middleware('permission:view roles', only: ['index']),
+            new Middleware('permission:edit roles', only: ['edit']),
+            new Middleware('permission:create roles', only: ['create']),
+            new Middleware('permission:create roles', only: ['destroy']),
+        ];
+    }
+
+
 
   
